@@ -1,0 +1,44 @@
+from datetime import datetime, timezone
+
+from sqlalchemy import Column, DateTime, Integer, String, Text, create_engine
+from sqlalchemy.orm import declarative_base, sessionmaker
+
+
+DATABASE_URL = "sqlite:///./social_studio.db"
+
+engine = create_engine(
+    DATABASE_URL,
+    connect_args={"check_same_thread": False}
+)
+
+SessionLocal = sessionmaker(
+    bind=engine,
+    autocommit=False,
+    autoflush=False
+)
+
+Base = declarative_base()
+
+
+class Post(Base):
+    __tablename__ = "posts"
+
+    id = Column(Integer, primary_key=True, index=True)
+    source_url = Column(String, nullable=True)
+    raw_content = Column(Text, nullable=False)
+    created_at = Column(
+        DateTime,
+        default=lambda: datetime.now(timezone.utc)
+    )
+
+
+def get_db():
+    db = SessionLocal()
+
+    try:
+        yield db
+    finally:
+        db.close()
+
+
+Base.metadata.create_all(bind=engine)
