@@ -1,6 +1,6 @@
 from datetime import datetime, timezone
 
-from sqlalchemy import Column, DateTime, Integer, String, Text, create_engine
+from sqlalchemy import Column, DateTime, ForeignKey,  Integer, String, Text, create_engine
 from sqlalchemy.orm import declarative_base, sessionmaker
 
 
@@ -31,7 +31,20 @@ class Post(Base):
         default=lambda: datetime.now(timezone.utc)
     )
 
+class Variant(Base):
+    __tablename__ = "variants"
 
+    id = Column(Integer, primary_key=True, index=True)
+    post_id = Column(Integer, ForeignKey("posts.id"), nullable=False)
+    platform = Column(String, nullable=False)
+    content = Column(Text, nullable=False)
+    status = Column(String, default="draft")
+    created_at = Column(
+        DateTime,
+        default=lambda: datetime.now(timezone.utc)
+    )
+    
+    
 def get_db():
     db = SessionLocal()
 
