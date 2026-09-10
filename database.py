@@ -43,8 +43,21 @@ class Variant(Base):
         DateTime,
         default=lambda: datetime.now(timezone.utc)
     )
-    
-    
+
+
+class ScheduleSlot(Base):
+    __tablename__ = "schedule_slots"
+
+    id = Column(Integer, primary_key=True, index=True)
+    variant_id = Column(
+        Integer,
+        ForeignKey("variants.id"),
+        nullable=False
+    )
+    scheduled_for = Column(DateTime, nullable=False)
+    idempotency_key = Column(String, unique=True, nullable=False)
+
+
 def get_db():
     db = SessionLocal()
 

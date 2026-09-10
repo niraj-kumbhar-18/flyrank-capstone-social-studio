@@ -1,5 +1,5 @@
 from typing import Optional
-
+from datetime import datetime
 from pydantic import BaseModel
 
 
@@ -11,5 +11,5 @@ class VariantCreate(BaseModel):
     platform: str
     content: str
 
-class VariantGenerate(BaseModel):
-    platform: str
+class ScheduleCreate(BaseModel):
+    scheduled_for: datetime
