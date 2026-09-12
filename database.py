@@ -58,6 +58,24 @@ class ScheduleSlot(Base):
     idempotency_key = Column(String, unique=True, nullable=False)
 
 
+class PublishAttempt(Base):
+    __tablename__ = "publish_attempts"
+
+    id = Column(Integer, primary_key=True, index=True)
+    schedule_slot_id = Column(
+        Integer,
+        ForeignKey("schedule_slots.id"),
+        nullable=False
+    )
+    attempted_at = Column(
+        DateTime,
+        default=lambda: datetime.now(timezone.utc)
+    )
+    success = Column(Integer, nullable=False)
+    detail = Column(Text, nullable=False)
+    external_post_id = Column(String, nullable=True)
+
+
 def get_db():
     db = SessionLocal()
 
