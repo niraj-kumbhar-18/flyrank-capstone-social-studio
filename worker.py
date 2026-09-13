@@ -1,5 +1,7 @@
 from datetime import datetime, timezone
 
+from dotenv import load_dotenv
+
 from database import (
     PublishAttempt,
     ScheduleSlot,
@@ -11,6 +13,8 @@ from publishers import (
     MockXPublisher,
     TelegramPublisher
 )
+
+load_dotenv()
 
 
 def get_due_schedule_slots(db):
