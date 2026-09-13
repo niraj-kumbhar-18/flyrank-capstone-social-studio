@@ -45,7 +45,7 @@ def process_due_slots(db):
             continue
 
         successful_attempt = db.query(PublishAttempt).filter(
-            PublishAttempt.schedule_slot_id == slot.id,
+            PublishAttempt.idempotency_key == slot.idempotency_key,
             PublishAttempt.success == 1
         ).first()
 
@@ -64,6 +64,7 @@ def process_due_slots(db):
 
         attempt = PublishAttempt(
             schedule_slot_id=slot.id,
+            idempotency_key=slot.idempotency_key,
             success=1 if result.success else 0,
             detail=result.detail,
             external_post_id=result.external_post_id

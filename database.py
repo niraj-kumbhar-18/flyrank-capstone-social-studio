@@ -50,9 +50,10 @@ class ScheduleSlot(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     variant_id = Column(
-        Integer,
-        ForeignKey("variants.id"),
-        nullable=False
+    Integer,
+    ForeignKey("variants.id"),
+    nullable=False,
+    unique=True
     )
     scheduled_for = Column(DateTime, nullable=False)
     idempotency_key = Column(String, unique=True, nullable=False)
@@ -67,6 +68,7 @@ class PublishAttempt(Base):
         ForeignKey("schedule_slots.id"),
         nullable=False
     )
+    idempotency_key = Column(String, nullable=False)
     attempted_at = Column(
         DateTime,
         default=lambda: datetime.now(timezone.utc)
@@ -74,7 +76,6 @@ class PublishAttempt(Base):
     success = Column(Integer, nullable=False)
     detail = Column(Text, nullable=False)
     external_post_id = Column(String, nullable=True)
-
 
 def get_db():
     db = SessionLocal()

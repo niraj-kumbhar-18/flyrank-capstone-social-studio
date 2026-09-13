@@ -276,26 +276,23 @@ def schedule_variant(
     variant = db.query(Variant).filter(Variant.id == variant_id).first()
 
     if not variant:
-        raise HTTPException(
-            status_code=404,
-            detail="Variant not found"
-        )
+        raise HTTPException(status_code=404, detail="Variant not found")
 
     if variant.status != "approved":
-        raise HTTPException(
-            status_code=400,
-            detail="Only approved variants can be scheduled"
-        )
+        raise HTTPException(status_code=400, detail="Only approved variants can be scheduled")
 
-    idempotency_key = f"{variant.id}-{schedule.scheduled_for.isoformat()}"
+    idempotency_key = f"variant-{variant.id}-schedule"
 
     existing_slot = (
         db.query(ScheduleSlot)
-        .filter(ScheduleSlot.idempotency_key == idempotency_key)
+        .filter(ScheduleSlot.variant_id == variant.id)
         .first()
     )
 
     if existing_slot:
+        existing_slot.scheduled_for = schedule.scheduled_for
+        db.commit()
+        db.refresh(existing_slot)
         return {
             "id": existing_slot.id,
             "variant_id": existing_slot.variant_id,
@@ -308,7 +305,6 @@ def schedule_variant(
         scheduled_for=schedule.scheduled_for,
         idempotency_key=idempotency_key
     )
-
     db.add(schedule_slot)
     db.commit()
     db.refresh(schedule_slot)
