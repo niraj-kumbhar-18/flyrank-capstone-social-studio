@@ -5,7 +5,7 @@ import os
 from dotenv import load_dotenv
 from google import genai
 from google.genai.errors import APIError
-from database import Post, ScheduleSlot, Variant, get_db
+from database import Post, PublishAttempt, ScheduleSlot, Variant, get_db
 from schemas import PostCreate, VariantCreate, ScheduleCreate
 from bs4 import BeautifulSoup
 from constraints import CONSTRAINT_PROFILES, validate_variant
@@ -199,6 +199,37 @@ def get_variant(
         "status": variant.status,
         "created_at": variant.created_at
     }
+
+
+@app.get("/publish-history")
+def get_publish_history(db: Session = Depends(get_db)):
+    history = (
+        db.query(PublishAttempt, ScheduleSlot, Variant)
+        .join(
+            ScheduleSlot,
+            PublishAttempt.schedule_slot_id == ScheduleSlot.id
+        )
+        .join(
+            Variant,
+            ScheduleSlot.variant_id == Variant.id
+        )
+        .order_by(PublishAttempt.attempted_at.desc())
+        .all()
+    )
+
+    return [
+        {
+            "id": attempt.id,
+            "schedule_slot_id": slot.id,
+            "variant_id": variant.id,
+            "platform": variant.platform,
+            "attempted_at": attempt.attempted_at,
+            "success": attempt.success == 1,
+            "detail": attempt.detail,
+            "external_post_id": attempt.external_post_id
+        }
+        for attempt, slot, variant in history
+    ]
 
 
 @app.post("/variants/{variant_id}/approve")

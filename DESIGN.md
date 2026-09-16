@@ -17,7 +17,7 @@ live publish target.
 - **Post**: id, source_url (nullable), raw_content (text), created_at
 - **Variant**: id, post_id (FK), platform (telegram / mock_x / mock_linkedin),
   content (text), status (draft / approved / rejected / published),
-  created_at, updated_at
+  created_at
 - **ScheduleSlot**: id, variant_id (FK, one slot per variant),
   scheduled_for (datetime), idempotency_key (unique)
 - **PublishAttempt**: id, schedule_slot_id (FK), attempted_at,
@@ -29,13 +29,10 @@ after.
 
 ## API surface (rough — firmed up in Phase 2/3)
 
-- `POST /posts` — ingest a post (url or markdown)
-- `POST /posts/{id}/generate` — generate variants for each platform
-- `GET /variants/{id}`
-- `POST /variants/{id}/approve`
-- `POST /variants/{id}/reject`
-- `POST /variants/{id}/schedule` — body: scheduled_for; 4xx if not approved
-- `GET /publish-history`
+The current API supports post ingestion, variant generation and review,
+scheduling, publishing history, and platform-specific publishing.
+
+See `README.md` for the current endpoint list and usage examples.
 
 ## Constraint profiles
 
